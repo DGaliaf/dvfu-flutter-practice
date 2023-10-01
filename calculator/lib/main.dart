@@ -33,107 +33,82 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   //Calculator logic
-  dynamic text = '0';
-  double numOne = 0;
-  double numTwo = 0;
+  String output = "0";
 
-  dynamic result = '';
-  dynamic finalResult = '';
-  dynamic operation = '';
-  dynamic prevOperation = '';
-   
-  void calculation(btnText) {
-    if(operation == '=' && btnText == '=') {
-      if(prevOperation == '+') {
-         finalResult = add();
-      } else if(prevOperation == '-') {
-          finalResult = sub();
-      } else if(prevOperation == '*') {
-          finalResult = mul();
-      } else if(prevOperation == '/') {
-          finalResult = div();
-      } 
+  String _output = "0";
+  double num1 = 0.0;
+  double num2 = 0.0;
+  String operand = "";
 
-    } else if (btnText == '+' || btnText == '-' || btnText == '*' || btnText == '/' || btnText == '=') {
+  void calculation(String buttonText){
 
-      if(numOne == 0) {
-          numOne = double.parse(result);
+    if(buttonText == "CLEAR"){
+      
+      _output = "0";
+      num1 = 0.0;
+      num2 = 0.0;
+      operand = "";
+
+    } else if (buttonText == "+" || buttonText == "-" || buttonText == "/" || buttonText == "*"){
+
+      num1 = double.parse(output);
+
+      operand = buttonText;
+
+      _output = buttonText;
+
+    } else if(buttonText == "."){
+
+      if(_output.contains(".")){
+        return;
+
       } else {
-          numTwo = double.parse(result);
+        _output = _output + buttonText;
       }
 
-      if(operation == '+') {
-          text = '+';
-          finalResult = add();
-      } else if( operation == '-') {
-          text = '-';
-          finalResult = sub();
-      } else if( operation == '*') {
-          text = '*';
-          finalResult = mul();
-      } else if( operation == '/') {
-          text = '/';
-          finalResult = div();
+    } else if (buttonText == "="){
+
+      num2 = double.parse(output);
+
+      if(operand == "+"){
+        _output = (num1 + num2).toString();
+      }
+      if(operand == "-"){
+        _output = (num1 - num2).toString();
+
+        if (num1 - num2 < 0) {
+          _output = "-$_output";
+        }
+      }
+      if(operand == "*"){
+        _output = (num1 * num2).toString();
+      }
+      if(operand == "/"){
+        _output = (num1 / num2).toString();
       }
 
-      prevOperation = operation;
-      operation = btnText;
-      result = '';
-    } else if (btnText == '.') {
-      if(!result.toString().contains('.')) {
-        result = '$result.';
-      }
+      num1 = 0.0;
+      num2 = 0.0;
+      operand = "";
 
-      finalResult = result;
     } else {
-        result = result + btnText;
-        finalResult = result;        
-    }
 
+      _output = _output + buttonText;
+
+    }
 
     setState(() {
-        text = finalResult;
-    });
-  }
-
-
-  String add() {
-    result = (numOne + numTwo).toString();
-    numOne = double.parse(result);           
-    
-    return doesContainDecimal(result);
-  }
-
-  String sub() {
-    result = (numOne - numTwo).toString();
-    numOne = double.parse(result);
-    
-    return doesContainDecimal(result);
-  }
-  String mul() {
-    result = (numOne * numTwo).toString();
-    numOne = double.parse(result);
-    
-    return doesContainDecimal(result);
-  }
-  String div() {
-    result = (numOne / numTwo).toString();
-    numOne = double.parse(result);
-    
-    return doesContainDecimal(result);
-  }
-
-
-  String doesContainDecimal(dynamic result) {
-    if(result.toString().contains('.')) {
-        List<String> splitDecimal = result.toString().split('.');
-        
-        if(!(int.parse(splitDecimal[1]) > 0)) {
-          return result = splitDecimal[0].toString();
+      if (buttonText == "+" || buttonText == "-" || buttonText == "/" || buttonText == "*") {
+        output = _output;
+      } else {
+        if (_output[0] == "+" || _output[0] == "-" || _output[0] == "/" || _output[0] == "*") {
+          output = double.parse(_output.substring(1)).toString();
+        } else {
+          output = double.parse(_output).toString();
         }
-    }
+      }
+    });
 
-    return result; 
   }
 
   Widget createButton(String text, Color buttonColor, Color textColor) {
@@ -172,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Text(text, style: const TextStyle(fontSize: 100), textAlign: TextAlign.left),
+                    Text(output, style: const TextStyle(fontSize: 100), textAlign: TextAlign.left),
                   ],
                 ),
               ),
@@ -206,10 +181,16 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  createButton(",", Colors.black, Colors.orange),
+                  createButton(".", Colors.black, Colors.orange),
                   createButton("0", Colors.purple, Colors.white),
                   createButton("=", Colors.black, Colors.orange),
                   createButton("/", Colors.black, Colors.orange),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  createButton("CLEAR", Colors.black, Colors.orange),
                 ],
               ),
               const SizedBox(height: 20,)
