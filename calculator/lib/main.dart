@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// TODO: Calculator logic
-
 void main() {
   runApp(const MyApp());
 }
