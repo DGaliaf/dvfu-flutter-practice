@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/dialog_box.dart';
-import 'package:todo_app/todo_tile.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todo_app/db/db.dart';
+import 'package:todo_app/utils/dialog_box.dart';
+import 'package:todo_app/utils/todo_tile.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  var box = await Hive.openBox('tasks');
+
   runApp(const MyApp());
 }
 
@@ -33,24 +38,40 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _controller = TextEditingController();
+  final _myBox = Hive.box('tasks');
+  ToDoDatabase db = ToDoDatabase();
 
-  List tasks = [
-    ["Test 1", false],
-    ["Test 2", false]
-  ];
+  @override
+  void initState() {
+    // Если открыли впервые приложение, то создаем дефолтные значения
+    if (_myBox.get("TODOLIST") == null) {
+      db.createInitialData();
+    } else {
+      db.loadData();
+    }
+
+    super.initState();
+  }
+
+  final _controller = TextEditingController();
 
   void checkBoxClicked(bool? value, int index) {
     setState(() {
-      tasks[index][1] = !tasks[index][1];
+      db.toDoList[index][1] = !db.toDoList[index][1];
     });
+
+    db.updateDataBase();
   }
 
   void saveNewTask() {
     setState(() {
-      tasks.add([_controller.text, false]);
+      db.toDoList.add([_controller.text, false]);
+      _controller.clear();
     });
+
     Navigator.of(context).pop();
+    
+    db.updateDataBase();
   }
 
   void createTask() {
@@ -58,11 +79,19 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context, builder: (context) {
         return MyDialogBox(
           controller: _controller,
-          onSave: () => saveNewTask,
+          onSave: () => saveNewTask(),
           onCancel: () => Navigator.of(context).pop(),
         );
       }
     );
+  }
+
+  void deleteTask(int index) {
+    setState(() {
+      db.toDoList.removeAt(index);
+    });
+
+    db.updateDataBase();
   }
 
   @override
@@ -77,12 +106,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
-        itemCount: tasks.length,
+        itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
           return ToDoTile(
-            taskName: tasks[index][0], 
-            taskCompleted: tasks[index][1], 
+            taskName: db.toDoList[index][0], 
+            taskCompleted: db.toDoList[index][1], 
             onChanged: (value) => checkBoxClicked(value, index),
+            onDelete: () => deleteTask(index),
           );
         },
       ),
