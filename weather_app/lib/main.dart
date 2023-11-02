@@ -21,22 +21,18 @@ class MyApp extends StatelessWidget {
       create: (_) => LocaleProvider(),
       builder: (context, child) {
         return MaterialApp(
-          title: 'Weather App',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
-            useMaterial3: true,
-          ),
-          supportedLocales: AllLocales.all,
-          locale: Provider.of<LocaleProvider>(context).locale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          home: const MyHomePage(title: 'Weather App'),
-        );    
-      },
+              title: 'Weather App',
+              supportedLocales: AllLocales.all,
+              locale: Provider.of<LocaleProvider>(context).locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+              ],
+              home: const MyHomePage(title: 'Weather App'),
+            );   
+          },
     );
   }
 }
