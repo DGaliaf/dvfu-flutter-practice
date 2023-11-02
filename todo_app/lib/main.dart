@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app/db/db.dart';
+import 'package:todo_app/providers/theme.dart';
 import 'package:todo_app/utils/dialog_box.dart';
+import 'package:todo_app/utils/switch_button.dart';
 import 'package:todo_app/utils/todo_tile.dart';
 
 void main() async {
@@ -16,15 +19,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TODO',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
-        primaryTextTheme: Typography(platform: TargetPlatform.iOS).white,
-        textTheme: Typography(platform: TargetPlatform.iOS).white,
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'TODO'),
+    return ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      builder: (context, _) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
+
+        return MaterialApp(
+          title: 'TODO',
+          themeMode: themeProvider.themeMode,
+          theme: MyThemes.lightTheme,
+          darkTheme: MyThemes.darkTheme,
+          home: const MyHomePage(title: 'TODO'),
+        );
+      },
     );
   }
 }
@@ -98,8 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          ChangeThemButton(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createTask,
